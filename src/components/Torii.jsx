@@ -2,7 +2,7 @@ import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Torii(props) {
-  const { nodes, materials } = useGLTF('/models/torii/torii-gate.glb')
+  const { nodes, materials } = useGLTF('./models/torii/torii-gate.glb')
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes['Node-Mesh'].geometry} material={materials.mat23} />
@@ -11,4 +11,4 @@ export function Torii(props) {
   )
 }
 
-useGLTF.preload("/models/torii/torii-gate.glb")
+useGLTF.preload("./models/torii/torii-gate.glb")
