@@ -1,8 +1,19 @@
-import { Cylinder, MeshReflectorMaterial, OrbitControls } from "@react-three/drei";
+import { Cylinder, MeshReflectorMaterial, OrbitControls, Text3D } from "@react-three/drei";
 import { CylinderCollider, RigidBody } from "@react-three/rapier";
 import { Torii } from "./Torii";
+import { kanas } from "../constant";
+import { useGameStore } from "../store";
+import { useEffect } from "react";
+import Kanaspots from "./Kanaspots";
+import CharacterController from "./CharacterController";
 
 export const Experience = () => {
+  const startGame = useGameStore((state) => state.startGame)
+
+  useEffect(() => {
+    startGame()
+  }, [])
+
   return (
     <>
       <OrbitControls />
@@ -44,13 +55,17 @@ export const Experience = () => {
 
       {/* STAGE */}
       <group position-y={-1} >
-        <RigidBody colliders={false} type="fixed" position-y={-0.5}>
+        <RigidBody colliders={false} type="fixed" position-y={-0.5} friction={2}>
           <CylinderCollider args={[0.5, 5]} />
           <Cylinder scale={[5, 1, 5]} receiveShadow>
             <meshStandardMaterial color={"white"} />
           </Cylinder>
         </RigidBody>
+        
+      <CharacterController/>
+      <Kanaspots />
       </group>
+
     </>
   );
 };
