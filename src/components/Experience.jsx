@@ -45,7 +45,7 @@ export const Experience = () => {
       {/* STAGE */}
       <group position-y={-1} >
         <RigidBody colliders={false} type="fixed" position-y={-0.5}>
-          <CylinderCollider args={[1 / 2, 5]} />
+          <CylinderCollider args={[0.5, 5]} />
           <Cylinder scale={[5, 1, 5]} receiveShadow>
             <meshStandardMaterial color={"white"} />
           </Cylinder>
