@@ -4,6 +4,7 @@ import { Physics } from "@react-three/rapier";
 import { Suspense, useMemo } from "react";
 import { getGameLevel } from "./store";
 import { KeyboardControls } from "@react-three/drei";
+import Menu from "./components/Menu";
 
 export const Controls = {
   forwad: "forwad",
@@ -32,6 +33,7 @@ function App() {
           </Physics>
         </Suspense>
       </Canvas>
+      <Menu />
     </KeyboardControls>
   );
 }

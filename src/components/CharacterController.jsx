@@ -1,9 +1,10 @@
-import { CapsuleCollider, RigidBody, useRapier } from "@react-three/rapier"
+import { CapsuleCollider, RigidBody, useRapier, vec3 } from "@react-three/rapier"
 import { Player } from "./Player"
 import { useKeyboardControls } from "@react-three/drei"
 import { Controls } from "../App"
 import { useFrame } from "@react-three/fiber"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
+import { useGameStore } from "../store"
 
 const JUMP_FORCE = 0.5;
 const MOVEMENT_SPEED = 0.1
@@ -54,6 +55,15 @@ export default function CharacterController() {
     }
   })
 
+  const resetPosition = () => {
+    rigidRef.current.setTranslation(vec3({ x: 0, y: 0, z: 0 }))
+    rigidRef.current.setLinvel(({ x: 0, y: 0, z: 0 }))
+  }
+
+  useEffect(() => {
+    useGameStore.subscribe((state) => state.currentStage, resetPosition)
+  }, [])
+
   return (
     <group>
       <RigidBody
@@ -63,6 +73,11 @@ export default function CharacterController() {
         enabledRotations={[false, false, false]}
         onCollisionEnter={() => {
           isOnFloor.current = true;
+        }}
+        onIntersectionEnter={({ other }) => {
+          if (other.rigidBodyObject.name === "void") {
+            resetPosition();
+          }
         }}
       >
         <CapsuleCollider args={[0.8, 0.4]} position={[0, 1.2, 0]} />

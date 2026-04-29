@@ -4,21 +4,21 @@ import { useGameStore } from "../store";
 
 export default function Kanaspots() {
   const level = useGameStore((state) => state.level);
-  const currentKana = useGameStore((state) => state.currentKana);
+  const kanaTouched = useGameStore((state) => state.kanaTouched);
   const currentStage = useGameStore((state) => state.currentStage);
-
-
-  console.log("level:", level)
-  console.log("currentStage:", currentStage)
-  console.log("stage data:", level?.[currentStage])
+  const mode = useGameStore((state) => state.mode);
 
   if (!level) {
     return null;
   }
   return level[currentStage].map((kana, index) => (
-    <group key={kana.name} rotation-y={(index / level[currentStage].length) * Math.PI * 2}>
+    <group
+      key={`${currentStage}-${kana.name}`}
+      rotation-y={(index / level[currentStage].length) * Math.PI * 2}>
       <group position-x={3.5} position-z={-3.5}>
-        <RigidBody colliders={false} type="fixed">
+        <RigidBody colliders={false} type="fixed" onCollisionEnter={() => {
+          kanaTouched(kana);
+        }}>
           <CylinderCollider args={[0.125, 1]} />
           <Cylinder scale={[1, 0.25, 1]} />
         </RigidBody>
@@ -30,7 +30,7 @@ export default function Kanaspots() {
             size={0.82}
             rotation-y={-(index / level[currentStage].length) * Math.PI * 2}
           >
-            {kana.character.hiragana}
+            {mode == "hiragana" ? kana.character.hiragana : kana.character.katakana}
             <meshNormalMaterial />
           </Text3D>
         </Center>

@@ -1,5 +1,5 @@
-import { Cylinder, MeshReflectorMaterial, OrbitControls, Text3D } from "@react-three/drei";
-import { CylinderCollider, RigidBody } from "@react-three/rapier";
+import { Cylinder, MeshReflectorMaterial, OrbitControls, Text3D, Text } from "@react-three/drei";
+import { CuboidCollider, CylinderCollider, RigidBody } from "@react-three/rapier";
 import { Torii } from "./Torii";
 import { kanas } from "../constant";
 import { useGameStore } from "../store";
@@ -8,11 +8,8 @@ import Kanaspots from "./Kanaspots";
 import CharacterController from "./CharacterController";
 
 export const Experience = () => {
-  const startGame = useGameStore((state) => state.startGame)
-
-  useEffect(() => {
-    startGame()
-  }, [])
+  const gameState = useGameStore((state) => state.gameState);
+  const currentKana = useGameStore((state) => state.currentKana);
 
   return (
     <>
@@ -26,25 +23,35 @@ export const Experience = () => {
         color={"#9e69da"} />
 
       {/* BACKGROUND */}
-      <mesh position={[0, -1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[50, 50]} />
-        <MeshReflectorMaterial
-          blur={[400, 400]}
-          resolution={1024}
-          mixBlur={1}
-          mixStrength={15}
-          depthScale={1}
-          minDepthThreshold={0.85}
-          color={"#dbecfb"}
-          metalness={0.6}
-          roughness={1}
-        />
-
-      </mesh>
+      <RigidBody colliders={false} type="fixed" name="void">
+        <mesh position={[0, -1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[50, 50]} />
+          <MeshReflectorMaterial
+            blur={[400, 400]}
+            resolution={1024}
+            mixBlur={1}
+            mixStrength={15}
+            depthScale={1}
+            minDepthThreshold={0.85}
+            color={"#dbecfb"}
+            metalness={0.6}
+            roughness={1}
+          />
+        </mesh>
+        <CuboidCollider position={[0, -3.5, 0]} args={[50, 0.1, 50]} sensor />
+      </RigidBody>
       <Torii
         scale={[16, 16, 16]}
         position={[0, 0, -22]}
         rotation-y={1.25 * Math.PI} />
+      {
+        currentKana && (
+          <Text position={[0, -1, -20]} fontSize={0.82}>
+            {currentKana.name.toUpperCase()}
+            <meshStandardMaterial color={'black'} opacity={0.6} transparent />
+          </Text>
+        )
+      }
       <Torii
         scale={[10, 10, 10]}
         position={[-8, 0, -22]}
@@ -61,11 +68,9 @@ export const Experience = () => {
             <meshStandardMaterial color={"white"} />
           </Cylinder>
         </RigidBody>
-        
-      <CharacterController/>
-      <Kanaspots />
+        <CharacterController />
+        <Kanaspots />
       </group>
-
     </>
   );
 };
