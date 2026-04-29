@@ -4,7 +4,9 @@ import { useKeyboardControls } from "@react-three/drei"
 import { Controls } from "../App"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useRef } from "react"
-import { useGameStore } from "../store"
+import { playAudio, useGameStore } from "../store"
+import { Vector3 } from "three"
+import * as THREE from "three"
 
 const JUMP_FORCE = 0.5;
 const MOVEMENT_SPEED = 0.1
@@ -21,7 +23,7 @@ export default function CharacterController() {
   const forwardPressed = useKeyboardControls((state) => state[Controls.forwad])
   const backwardPressed = useKeyboardControls((state) => state[Controls.backward])
 
-  useFrame(() => {
+  useFrame((state) => {
     const impulse = { x: 0, y: 0, z: 0 }
     if (jumpPressed && isOnFloor.current) {
       impulse.y += JUMP_FORCE
@@ -29,7 +31,7 @@ export default function CharacterController() {
     }
 
     const linvel = rigidRef.current.linvel()
-    let changeRotation = true;
+    let changeRotation = false;
 
     if (rightPressed && linvel.x < MAX_VEL) {
       impulse.x += MOVEMENT_SPEED
@@ -50,9 +52,17 @@ export default function CharacterController() {
 
     rigidRef.current.applyImpulse(impulse, true);
     if (changeRotation) {
-      const angle = Math.atan2(linvel.x, linvel.z) + Math.PI;
+      const angle = Math.atan2(impulse.x, impulse.z)
       characterRef.current.rotation.y = angle;
     }
+
+    // CAMERA FLOW
+    const characterWorldPosition = characterRef.current.getWorldPosition(new Vector3());
+    state.camera.position.x = characterWorldPosition.x;
+    state.camera.position.z = characterWorldPosition.z + 14;
+
+    const targetLookAt = new THREE.Vector3(characterWorldPosition.x, 0, characterWorldPosition.z);
+    state.camera.lookAt(targetLookAt);
   })
 
   const resetPosition = () => {
@@ -77,6 +87,10 @@ export default function CharacterController() {
         onIntersectionEnter={({ other }) => {
           if (other.rigidBodyObject.name === "void") {
             resetPosition();
+            playAudio("fall", "hiragana", () => {
+              playAudio("goodluck")
+              playAudio("hiragana")
+            })
           }
         }}
       >

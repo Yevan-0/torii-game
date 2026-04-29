@@ -8,11 +8,13 @@ export const gameStates = {
   GAME_OVER: "GAME_OVER"
 }
 
-export const playAudio = (name, mode = "hiragana") => {
+export const playAudio = (name, mode = "hiragana", callback) => {
   const suffix = mode === "katakana" ? "_k" : ""
   const filePath = `./sounds/${name}${suffix}.mp3`
   const audio = new Audio(filePath);
-  console.log("Playing:", filePath)
+  if (callback) {
+    audio.addEventListener("ended", callback)
+  }
   audio.play().catch((e) => console.error("Audio failed", filePath, e))
 }
 
@@ -41,16 +43,20 @@ export const useGameStore = create(subscribeWithSelector((set, get) => ({
   level: null,
   currentStage: 0,
   currentKana: null,
+  lastWrongKana: null,
   mode: "hiragana",
   gameState: gameStates.MENU,
   wrongAnswers: 0,
   startGame: ({ mode }) => {
     const level = getGameLevel({ stages: 5 });
     const currentKana = level[0].find((kana) => kana.correct);
-    playAudio(currentKana.name, mode)
+    playAudio("start", () => {
+      playAudio(currentKana.name, mode)
+    })
     set({
       level, currentStage: 0,
       currentKana,
+      lastWrongKana: null,
       gameState: gameStates.GAME,
       wrongAnswers: 0,
       mode,
@@ -59,17 +65,21 @@ export const useGameStore = create(subscribeWithSelector((set, get) => ({
   nextStage: () => {
     set((state) => {
       if (state.currentStage + 1 === state.level.length) {
+        playAudio("congratulations")
         return {
           currentStage: 0,
           currentKana: null,
+          lastWrongKana: null,
           level: null,
           gameState: gameStates.GAME_OVER
         }
       }
       const currentStage = state.currentStage + 1;
       const currentKana = state.level[currentStage].find((kana) => kana.correct);
-      playAudio(currentKana.name, state.mode)
-      return { currentStage, currentKana }
+      playAudio("correct", "hiragana", () => {
+        playAudio(currentKana.name, state.mode)
+      })
+      return { currentStage, currentKana, lastWrongKana:null }
     })
   },
   goToMenu: () => {
@@ -83,9 +93,12 @@ export const useGameStore = create(subscribeWithSelector((set, get) => ({
     if (currentKana.name === kana.name) {
       get().nextStage()
     } else {
-      playAudio(kana.name, state.mode);
+      playAudio("wrong", "hiragana", () => {
+        playAudio(kana.name, state.mode);
+      })
       set((state) => ({
         wrongAnswers: state.wrongAnswers + 1,
+        lastWrongKana:kana
       }))
     }
   }
