@@ -23,7 +23,7 @@ export default function Menu() {
         </button>
       </div>
       <div className={`scores ${gameState !== gameStates.GAME_OVER ? "scores--hidden" : ""}`}>
-        <h1>Congratulations</h1>
+        <h1>CONGRATULATIONS!</h1>
         <button onClick={goToMenu}>
           Play again
         </button>

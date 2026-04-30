@@ -79,7 +79,7 @@ export const useGameStore = create(subscribeWithSelector((set, get) => ({
       playAudio("correct", "hiragana", () => {
         playAudio(currentKana.name, state.mode)
       })
-      return { currentStage, currentKana, lastWrongKana:null }
+      return { currentStage, currentKana, lastWrongKana: null }
     })
   },
   goToMenu: () => {
@@ -98,8 +98,14 @@ export const useGameStore = create(subscribeWithSelector((set, get) => ({
       })
       set((state) => ({
         wrongAnswers: state.wrongAnswers + 1,
-        lastWrongKana:kana
+        lastWrongKana: kana
       }))
     }
-  }
+  },
+  // CHARACTER STATE
+  characterState: "Idle",
+  setCharacterState: (characterState) =>
+    set({
+      characterState
+    })
 })))
